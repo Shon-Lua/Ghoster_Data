@@ -1,12 +1,14 @@
 import express from "express";
 import fetch from "node-fetch";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 app.use(express.json());
-
-// раздаём сайт
-app.use(express.static("site"));
+app.use(express.static(path.join(__dirname, "site")));
 
 app.post("/chat", async (req, res) => {
   const r = await fetch("http://localhost:11434/api/generate", {
@@ -16,6 +18,7 @@ app.post("/chat", async (req, res) => {
       prompt: req.body.prompt
     })
   });
+
   const data = await r.json();
   res.json({ reply: data.response });
 });
