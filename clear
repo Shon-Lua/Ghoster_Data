@@ -1,0 +1,87 @@
+@echo off
+chcp 65001 >nul
+title ULTIMATE RAM OPTIMIZER
+
+echo ============================================
+echo   1) ОТКЛЮЧЕНИЕ DEFENDER
+echo ============================================
+
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender" /v DisableAntiSpyware /t REG_DWORD /d 1 /f
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" /v DisableRealtimeMonitoring /t REG_DWORD /d 1 /f
+
+sc stop WinDefend >nul 2>&1
+sc config WinDefend start= disabled >nul 2>&1
+
+echo Defender отключён.
+echo.
+
+echo ============================================
+echo   2) ОТКЛЮЧЕНИЕ ONEDRIVE
+echo ============================================
+
+taskkill /IM OneDrive.exe /F >nul 2>&1
+%SystemRoot%\SysWOW64\OneDriveSetup.exe /uninstall >nul 2>&1
+%SystemRoot%\System32\OneDriveSetup.exe /uninstall >nul 2>&1
+
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\OneDrive" /v DisableFileSyncNGSC /t REG_DWORD /d 1 /f
+
+echo OneDrive удалён.
+echo.
+
+echo ============================================
+echo   3) ОТКЛЮЧЕНИЕ UWP-ПОДСИСТЕМЫ
+echo ============================================
+
+sc stop ClipSVC >nul 2>&1
+sc config ClipSVC start= disabled >nul 2>&1
+
+sc stop AppXSVC >nul 2>&1
+sc config AppXSVC start= disabled >nul 2>&1
+
+sc stop TokenBroker >nul 2>&1
+sc config TokenBroker start= disabled >nul 2>&1
+
+sc stop WpnService >nul 2>&1
+sc config WpnService start= disabled >nul 2>&1
+
+sc stop InstallService >nul 2>&1
+sc config InstallService start= disabled >nul 2>&1
+
+echo UWP отключено.
+echo.
+
+echo ============================================
+echo   4) ОТКЛЮЧЕНИЕ ФОНОВЫХ ПРИЛОЖЕНИЙ
+echo ============================================
+
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\BackgroundAccessApplications" /v GlobalUserDisabled /t REG_DWORD /d 1 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v BackgroundAppGlobalToggle /t REG_DWORD /d 0 /f
+
+echo Фоновые приложения отключены.
+echo.
+
+echo ============================================
+echo   5) ОТКЛЮЧЕНИЕ WINDOWS SEARCH (даёт +200-300 МБ)
+echo ============================================
+
+sc stop WSearch >nul 2>&1
+sc config WSearch start= disabled >nul 2>&1
+
+echo Windows Search отключён.
+echo.
+
+echo ============================================
+echo   6) ОТКЛЮЧЕНИЕ SUPERFETCH / SYSMAIN (даёт +300-600 МБ)
+echo ============================================
+
+sc stop SysMain >nul 2>&1
+sc config SysMain start= disabled >nul 2>&1
+
+echo SysMain отключён.
+echo.
+
+echo ============================================
+echo   ВСЕ ОПЕРАЦИИ ВЫПОЛНЕНЫ
+echo ============================================
+pause
+exit
